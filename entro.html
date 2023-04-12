@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="es" lang="en">
+    <head>
+        <title>Usuarios</title>
+        <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+        <style>
+            body {
+                height: 100%;
+                background: #e8e8e8;
+                font-family: "Source Sans Pro", sans-serif;
+                
+            }
+
+            form {
+                display: flex;
+                justify-content: center;
+                align-content: center;
+                flex-direction: column;
+                background-color: #f2eee3;
+            }
+
+            table
+            {
+                width: 100%;
+                border: 1px solid #000;
+                font-size: "Source Code Pro", sans-serif;
+            }
+            td
+            {
+                
+                border-collapse: collapse;
+                font-size: "Source Code Pro", sans-serif;
+            }
+            .content-table{
+                border-collapse: collapse;
+                margin: 25px 0;
+                font-size: 0.9em;
+                min-width: 400px;
+                border-radius: 5px 5px 0 0;
+                overflow: hidden;
+                box-shadow: 0 0 20px rgba(0,0,0,0.15);
+                font-size: "Source Code Pro", sans-serif;
+            }
+
+            .content-table th{
+                background-color: #009879;
+                color:#ffff;
+                text-align: left;
+            }
+
+            .content-table tr {
+                text-align: left;
+                font-weight: bold;
+                border-bottom: 1px solid #dddddd;
+                font-size: "Source Code Pro", sans-serif;
+            }
+
+            .content-table tr:last-of-type{
+                border-bottom: 2px solid #009879;
+            }
+
+            .content-table tr:nth-of-type(even){
+                background-color: #f3f3f3;
+            }
+
+            .button {
+                width: 50%;
+                height: 30px;
+                border: 0;
+                outline: 0;
+                color: #f2eee3;
+                font-size: 15px;
+                font-weight: 400;
+                position: relative;
+                z-index: 3;
+                background: #8288ff;
+                font-size: "Source Code Pro", sans-serif;
+                cursor:pointer;
+                border-radius: 5px;
+            }
+            .buttonAdd {
+                width: 10%;
+                height: 30px;
+                border: 0;
+                outline: 0;
+                color: #f2eee3;
+                font-size: 15px;
+                font-weight: 400;
+                position: relative;
+                z-index: 3;
+                background: #8288ff;
+                font-size: "Source Code Pro", sans-serif;
+                cursor:pointer;
+                border-radius: 5px;
+            }
+
+            .form {
+                width: 100%;
+                height: 100%;
+                
+            }
+
+            .form--heading {
+                font-size: 25px;
+                height: 50px;
+                color: #8288ff;
+                font-size: "Source Code Pro", sans-serif;
+                margin: 0 auto;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .form--mod {
+                border-right: 1px solid #999;
+            }
+
+            form input {
+                width: 50%;
+                border: 0;
+                border-bottom: 1px solid #aaa;
+                font-size: 0.9em;
+                font-weight: 3000;
+                color: #797a9e;
+                letter-spacing: 0.11em;
+                background-color: #f2eee3;
+                margin: 0 auto;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+
+            }
+
+            form input::placeholder{
+                color: #333;
+                font-size: 0.9em;
+            }
+
+            .swal-footer {
+                background-color: rgb(245, 248, 250);
+                margin-top: 32px;
+                border-top: 1px solid #E9EEF1;
+                overflow: hidden;
+            }
+
+            .swal-overlay {
+                background-color: rgba(0, 152, 121, 0.45);
+            }
+
+
+        </style>
+    </head>
+    <body onload="todo()">
+        <h3>Bienvenido</h3>
+        <h3>Usuarios Registrados</h3>
+        <div>
+            <input type="button" value="←" class="buttonAdd" title="Regresar a inicio" onclick="Regresar()" class="buttonAdd">
+            <input type="button" value="+" class="buttonAdd" title="Agregar usuario" onclick="pet()">
+        </div>
+        
+        <table id="usuarios" class="content-table"></table>
+
+        <div class="form form--mod">
+            <div class="form--heading">Modificacion de usuarios</div>
+            <form autocomplete="off">
+                <input type="text" id="nameMod" placeholder="Nombre">
+                <input type="text" id="lastMod" placeholder="Apellido">
+                <input type="text" id="emailMod" placeholder="Correo">
+                <input type="text" id="numberMod" placeholder="Numero">
+                <input type="button" id="mod" class="button" value="Modificar" onclick="update()"> 
+            </form>
+        </div>
+    </body>
+      
+    <script>
+        const ul=document.getElementById("authors");
+        const tbl=document.getElementById("usuarios");//Obtener tabla completa
+        const url = 'http://localhost:11235/todo';  //Direccion ruta de servidor para obtener todos los datos de la DB
+
+        //Funcion de peticion de datos para nuevo registro en dentro de pagina principal
+        async function pet()
+        {
+            //Alerta de peticion de datos al usuario
+            swal("Ingrese datos en el orden [nombre,lastname,correo,password,numero]", {
+                content: "input",
+                icon: "info",
+                })
+                .then((nm) => {
+                    console.log(nm)
+                    nm=nm.split(",");//Separamos los datos por las comas que se agregan al insertarlas
+
+                    //Inicio de verificacion de que los datos sean validos antes de pasarlos al backend
+                    if(nm[0].length < 2)//Verificacion de nombre
+                    {   //Alerta de si no cumple con la verificacion
+                        swal({
+                            text:`El campo "nombre" debe contener al menos 2 caracteres`,
+                            icon:"info"
+                        })
+                    }
+                    else if(nm[1].length < 2)//Verificacion de apellido
+                    {   //Alerta de si no cumple con la verificacion
+                        swal({
+                            text:`El campo "apellido" debe contener al menos 2 caracteres`,
+                            icon:"info"
+                        })
+                    }
+                    else if(nm[3] < 8)//Verificacion de contraseña
+                    {   //Alerta de si no cumple con la verificacion
+                        swal({
+                            text:`El campo "contraseña" debe contener al menos 8 caracteres`,
+                            icon:"info"
+                        })
+                    }
+                    else if(nm[4].length < 10)//Verificacion de numero
+                    {   //Alerta de si no cumple con la verificacion
+                        swal({
+                            text:`El campo "numero" debe contener al menos 10 caracteres`,
+                            icon:"info"
+                        })
+                    }
+                    else if(!(/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(nm[2])))//Verificacion de correo
+                    {   //Alerta de si no cumple con la verificacion
+                        swal({
+                            text:`Introduzca un correo valido`,
+                            icon:"info"
+                        })
+                    }//Termino de verificacion de parametros de ingreso al backend
+                    else
+                    {   //Peticion al servidor, con metodo POST, cabeceras con el tipo JSON, y el cuerpo de la peticion con los datos verificados
+                        fetch('http://localhost:11235/insertar',{
+                        method:'POST', 
+                        headers: {'Content-Type': 'application/json; charset=utf-8'},
+                        body: JSON.stringify({name : nm[0], lastname: nm[1], email:nm[2] , password:nm[3], number : nm[4]})
+                        })
+                        .then(async res => {
+                            let contestacion= await res.json()//Contestacion del servidor
+                            console.log(contestacion.alert)
+                            if(contestacion.alert=="Success...")//Si se enceuntra que la respuesta es exitosa
+                            {   //Mensaje con la contestacion de exito del backend
+                                swal({
+                                text: contestacion.alert,
+                                icon:"info",
+                                })
+                                
+                            }
+                            else//En caso de que no se logre la insersion
+                            {   //Mensaje con la contestacion del backend
+                                swal({
+                                text: contestacion.alert,
+                                icon:"info",
+                                })
+                            }
+                        })
+                        .catch((e)=>{
+                            console.log(e)
+                        })
+                        window.location.reload();//Recarga de la pagina
+                    }
+                });
+        }
+        
+        //Funcion creacion de objeto HTML para tabla
+        function createNode(element)
+        {
+            return document.createElement(element)
+        }
+
+        //Ordenamiento de los datos
+        function ordo(dataServ) {
+            dataServ.sort(function (a,b) {
+                var textA = a.name;
+                var textB = b.name;
+                return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+            })
+        }
+
+        //Insercion de onjeto HTML en arbol de pagina
+        function append(parent, el)
+        {
+            return parent.appendChild(el);
+        }
+
+        //Funcion todo, que se ejecuta al inicio de la pagina
+        fetch(url)//´Peticion al servidor de obtencion de todos los datos
+        .then((resp) => resp.json())//Conversion de respuesta a formato JSON
+        .then(function(data) {
+        let alumn = data.data;//Pbtencion de datos del formato JSON
+       
+        ordo(alumn,'name')
+
+        //Creacion de las cabeceras de la tabla
+        let tr = createNode('tr');
+        let tdc1 =createNode('th');
+        let tdc2 =createNode('th');
+        let tdc3 =createNode('th');
+        let tdc4 =createNode('th');
+        let tdc5 =createNode('th');
+        let tdc6 =createNode('th');
+        //Campos de cada columna de la tabla
+        tdc1.innerHTML = `Nombre`;
+        tdc2.innerHTML = `Apellido`;
+        tdc3.innerHTML = `Correo`;
+        tdc4.innerHTML = `Numero`;
+        tdc5.innerHTML = 'Eliminar';
+        tdc6.innerHTML = 'Modificar';
+        //Adicion de las etiquetas HTML en el lugar correspondiente, agergadas el final de la tabla
+        append(tr,tdc1)
+        append(tr,tdc2)
+        append(tr,tdc3)
+        append(tr,tdc4)
+        append(tr,tdc5)
+        append(tr,tdc6)
+        append(tbl,tr)
+        //Mapeo de los datos de la BD con la tabla en donde se incertaran los datos
+        return alumn.map(function(author) {
+            //Creacion de las filas de la tabal
+            let tr = createNode('tr');
+            let td = createNode('td');
+            let td2 = createNode('td');
+            let td3 = createNode('td');
+            let td4 = createNode('td');
+            let td5 = createNode('td');
+            let td6 = createNode('td');
+            //Obtencion de los datos que tendran los campos de cada columna
+            td.innerHTML = `${author.name}`;
+            td2.innerHTML = `${author.lastname}`;
+            td3.innerHTML = `${author.email}`;
+            td4.innerHTML = `${author.number}`;
+            //Adicion de radio buttons en las dos columnas ultimas para la eliminacion y modificacion respectivamente
+            td5.innerHTML = `<input type="radio" id=${author.email} onclick='eliminar(this)' name="user">`;
+            td6.innerHTML = `<input type="radio" id=${author.email} onclick="modificar('${author.name}','${author.lastname}','${author.email}','${author.number}')" name="usermod">`;
+            //Adicion de los registros/filas, a la tabla
+            append(tr, td);
+            append(tr,td2);
+            append(tr,td3);
+            append(tr,td4);
+            append(tr,td5);
+            append(tr,td6);
+            append(tbl,tr)
+        })
+        })
+        .catch(function(error) {
+        console.log(error);
+        });
+
+        //Modificar, vaciado de datos de la tabla al formulario de modicacion
+        function modificar(d1,d2,d3,d4)
+        {   //Obtencion de elementos del formulacion de modificacion
+            var nom = document.getElementById("nameMod")
+            var lastn = document.getElementById("lastMod")
+            var mail = document.getElementById("emailMod")
+            var numbr = document.getElementById("numberMod")
+            var bt = document.getElementById("mod")
+            //Ageragr datos a los campos y habilitacion de los campos a escepcion de la contraseña, ya que es "llave primaria"
+            nom.value= d1
+            nom.disabled=false
+            lastn.value= d2
+            lastn.disabled=false
+            mail.value= d3
+            mail.disabled=true
+            numbr.value= d4
+            numbr.disabled=false
+            bt.disabled=false
+        }
+
+        //Actualizacion de registro en base de datos
+        function update()
+        {   //Obtencion del valor de los elementos de la pagina, en este caso formulario de modificacion
+            var nom = document.getElementById("nameMod").value
+            var lastn = document.getElementById("lastMod").value
+            var mail = document.getElementById("emailMod").value
+            var numbr = document.getElementById("numberMod").value
+
+            //Peticion hacia el servidor con respecto a los datos del formulario
+            urle='http://localhost:11235/actualizar'
+                fetch(urle,{
+                    method:'POST', 
+                    headers: {'Content-Type': 'application/json; charset=utf-8'},
+                    body: JSON.stringify({name:nom, lastname:lastn, email:mail, number:numbr})
+                })
+                .then((resp) => resp.json())//Transformacion de contestacion del backend en formato JSON
+                .then(async function(data) {
+                let alumn = await data.alert;//Obtencion contestacion del backend
+                swal({
+                    text: alumn,
+                    icon:"info",
+                    timer: 5000,
+                    buttons: false
+                })
+                })
+                .catch(function(error) {
+                console.log(error);
+                });
+
+            console.log(nom, lastn, mail, numbr)
+            window.location.reload();
+        }
+
+        //Eliminar
+        function eliminar(that)
+        {   //Alerta de eliminacion de datos
+            swal(
+                {//Mensiona el correo que estas por eliminar
+                    text:`Esta por eliminar el usuario ${that.id}`,
+                    dangerMode:true,
+                    buttons:{
+                        btn1:{
+                            text:"Aceptar",
+                            value:"acep"
+                        },
+                        btn2:{
+                            text:"Cancelar",
+                            value:"abortar"
+                        }
+                    },
+                    icon:"warning",
+                    
+                })
+                .then((value) => {
+                    switch(value) {//En caso de ser aceptar
+                        case "acep":
+                            //Realizamos la peticion de hacia el servidor para la eliminacion del registro
+                            urle='http://localhost:11235/eliminar'
+                            fetch(urle,{
+                                method:'POST', 
+                                headers: {'Content-Type': 'application/json; charset=utf-8'},
+                                body: JSON.stringify({email :that.id})//Enviamos el correo de lo que queremos eliminar
+                            })
+                            .then((resp) => resp.json())//Transformacion de contestacion del backend a formato JSON
+                            .then(async function(data) {
+                            let alumn = await data.alert;
+                            swal({//Alerta con la contestacion del backend
+                                text:alumn,
+                                timer:3000,
+                                buttons:false,
+                                icon:"success",
+                            })
+                            window.location.reload();//Recarda de la pagina
+                            })
+                            .catch(function(error) {
+                            console.log(error);
+                            });
+                            break;
+                        case "abortar"://En caso de cancelar
+                            swal({//Aviso de no realizar combios
+                                text:"Se cancelo la eliminación",
+                                icon:"info"
+                            })
+                            break;
+                        default://Si se presiona a un lado de la notificacion
+                            window.location.reload();//Realizamos la nueva carga de la pagina
+                    }
+                })
+        }
+
+        //Obtencion de los campos de la pagina
+        function todo()
+        {
+            var btmod = document.getElementById("mod")
+            var inName = document.getElementById("nameMod")
+            var inLast=document.getElementById("lastMod")
+            var inEmail = document.getElementById("emailMod")
+            var inNum=document.getElementById("numberMod")
+            //Inicio d ela pagina, donde las partes del formulario de la modificacion se desabilitan por cuestiones de seguridad
+            inName.disabled=true
+            inLast.disabled=true
+            inNum.disabled=true
+            inEmail.disabled=true
+            btmod.disabled=true
+        }
+
+        //Funcion regreso a pagina anterior
+        function Regresar()
+        {
+            location.replace('http://localhost:11235/')
+        }
+
+    </script>
+
+     
+</html>

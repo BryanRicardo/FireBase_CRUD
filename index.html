@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="es" lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Login / Sing Up</title>
+        <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+        <style>
+            @import url("https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400");
+            @import url("https://fonts.googleapis.com/css?family=Playfair+Display");
+
+            body,
+            .message,
+            .form,
+            form {
+                display: flex;
+                justify-content: center;
+                align-content: center;
+                flex-direction: column;
+                background-color: #f2eee3;
+            }
+
+            h6{
+                color: #e8e8aa;                
+            }
+
+            body {
+                height: 100vh;
+                background: #e8e8e8;
+                font-family: "Source Sans Pro", sans-serif;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .container {
+                width: 700px;
+                height: 400px;
+                background: #f2eee3;
+                position: relative;
+                display: grid;
+                grid-template: 100%/50% 50%;
+                box-shadow: 2px 2px 10px 0 rgba(51,51,51,0.5);
+            }
+
+            .message {
+                position: absolute;
+                background-color: #f2eee3;
+                width: 50%;
+                height: 100%;
+                transition: 0.5s all ease;
+                transform: translateX(100%);
+                z-index: 4;
+            }
+
+            .message::before {
+                position: absolute;
+                content: "";
+                width: 1px;
+                height: 70%;
+                background: #c3c3d8;
+                opacity: 0;
+                left: 0;
+                top: 15%;
+            }
+
+            .message .button{
+                margin: 5px;
+            }
+
+            .signup::before {
+                opacity: 0.3;
+                left: 0;
+            }
+
+            .login::before {
+                opacity: 0.3;
+                left: 100%;
+            }
+
+            .btn-wrapper {
+                width: 60%;
+            }
+
+            .form {
+                width: 100%;
+                height: 100%;
+            }
+
+            .form--heading {
+                font-size: 25px;
+                height: 50px;
+                color: #8288ff;
+                font-size: "Source Code Pro", sans-serif;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .form--signup {
+                border-right: 1px solid #999;
+            }
+
+            form {
+                width: 70%;
+            }
+
+            form > * {
+                margin: 10px;
+            }
+
+            form input {
+                width: 90%;
+                border: 0;
+                border-bottom: 1px solid #aaa;
+                font-size: 13px;
+                font-weight: 3000;
+                color: #797a9e;
+                letter-spacing: 0.11em;
+                background-color: #f2eee3;
+            }
+
+            form input::placeholder{
+                color: #333;
+                font-size: 10px;
+            }
+
+            form input:focus{
+                outline: 0;
+                border-bottom: 1px solid rgba(128, 155, 206, 0.7);
+                transition: 0.6s all ease;
+            }
+
+            .button {
+                width: 100%;
+                height: 30px;
+                border: 0;
+                outline: 0;
+                color: #f2eee3;
+                font-size: 15px;
+                font-weight: 400;
+                position: relative;
+                z-index: 3;
+                background: #8288ff;
+                font-size: "Source Code Pro", sans-serif;
+                cursor:pointer;
+                border-radius: 5px;
+            }
+
+            .glass{
+                justify-content: center;
+                align-items: center;
+                background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255,255,255,0.5));
+                -webkit-backdrop-filter: blur(20px);
+                backdrop-filter: blur(20px);
+                box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+                border: 1px solid rgba(255, 255, 255, 0.18);
+                border-radius: 32px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container glass">
+            <div class="message signup glass">
+                <div class="btn-wrapper">
+                   <button class="button" id="signup">Sign Up</button>
+                   <button class="button" id="login">Login</button>
+                   <h6>CervantesMancera, Bryan Ricardo</h6>
+                </div>
+            </div>
+            <div class="form form--signup glass">
+                <div class="form--heading">Sign Up</div>
+                <form autocomplete="off" onsubmit="return validacion()">
+                    <input type="text" placeholder="Nombre" id="nombre">
+                    <input type="text" placeholder="Apellido" id="apellido">
+                    <input type="email" placeholder="Email" id="email">
+                    <input type="password" placeholder="Password" id="password">
+                    <input type="text" placeholder="Numero" id="numero">
+                    <input type="button" class="button" onclick="crear()" value="Sign Up">
+                </form>
+            </div>
+            <div class="form form--login glass">
+               <div class="form--heading">Bienvenido</div>
+               <form id="loginF">
+                <input type="text" placeholder="Correo" id="emailL">
+                <input type="password" placeholder="Password" id="passwordL">
+                <input type="button" class="button" onclick="entrar()" value="Login">
+               </form>  
+            </div>
+        </div>
+        <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
+        <!--<script src='./script.js'></script>-->
+        <script>
+            var correoL = document.getElementById('emailL');
+            var contraL = document.getElementById('passwordL');
+            $("#signup").click(function() {
+            $(".message").css("transform", "translateX(100%)");
+            if ($(".message").hasClass("login")) {
+            $(".message").removeClass("login");
+            correoL.value="";
+            contraL.value="";
+            }
+            $(".message").addClass("signup");
+            });
+
+            $("#login").click(function() {
+                $(".message").css("transform", "translateX(0)");
+                if ($(".message").hasClass("login")) {
+                $(".message").removeClass("signup");
+                }
+                $(".message").addClass("login");
+            });
+        </script>
+        <script>
+            var nombre, apellido, email, password, numero;
+
+            //Funcio de obtencion de los valores de lso datos del Login
+            function formL(){
+            email = document.getElementById("emailL").value;
+            password = document.getElementById("passwordL").value;
+            }
+
+            //Obtencion de datos en el formulario de ingreso de nueo usuario
+            function formSU(){
+                nombre = document.getElementById("nombre").value
+                apellido = document.getElementById("apellido").value
+                email = document.getElementById("email").value
+                password=document.getElementById("password").value
+                numero=document.getElementById("numero").value
+            }
+
+            //Funcion usada para la validacion del formulario de nuevo usuario, en caso de ser false el resutado, no deja el envio del formulario
+            function validacion() {
+                var correo = document.getElementById("email").value;
+                var numero = document.getElementById("numero").value;
+                var nombre = document.getElementById("nombre").value;
+                var lastname = document.getElementById("lastname").value;
+                var password = document.getElementById("password").value;
+
+                var mensaje = confirm(`Esta por ingresar el usuario ${nombre}`)
+                if(mensaje)
+                {
+                     //Password
+                    if(password.length < 8)
+                    {
+                        alert("La contraseña debe ser mayor a 8 digitos")
+                        return false
+                    }
+                    //Nombre
+                    if(nombre.length < 3)
+                    {
+                        alert("El nombre debe se mayor a 3 caractetes")
+                        return false
+                    }
+                    //Lastname
+                    if(lastname.length < 3)
+                    {
+                        alert("El apellidos debe se mayor a 3 caracteres")   
+                        return false
+                    }
+                    //Nuemro
+                    if( isNaN(numero) && numero <10) 
+                    {
+                        alert("Numero debe ser mayor de 10")
+                        return false;
+                    }
+                    //correo
+                    if( !(/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(correo)) )
+                    {
+                        alert("Correo invalido")
+                        return false;
+                    }
+                }
+                else
+                {
+                    alert("Registro cancelado")
+                }               
+               
+            }
+
+            //Limpieza de los datos de nuevo usuario
+            function limpiarSU()
+            {
+                var cnombre = document.getElementById("nombre")
+                var capellido = document.getElementById("apellido")
+                var cemail = document.getElementById("email")
+                var cpassword=document.getElementById("password")
+                var cnumero=document.getElementById("numero")
+
+                cnombre.value =""
+                capellido.value =""
+                cemail.value =""
+                cpassword.value =""
+                cnumero.value =""
+            }
+
+            //Funcion de Login
+            function entrar(){
+                formL();
+                //Peticion del servidor para el logueo 
+                fetch('http://localhost:11235/login',{
+                method:'POST', 
+                headers: {'Content-Type': 'application/json; charset=utf-8'},
+                body: JSON.stringify({email , password})
+                })
+                .then((resp) => resp.json())
+                .then(function(data) {
+                let authors = data.alert;
+                //En caso de que la contestacion del servidor sean falta de datos o uno de los datos de autenticaion sean erroneos
+                if((authors == 'Contraseña incorrecta') || (authors == 'Faltan datos') || (authors == 'Correo no registrado'))
+                {   //Muestra aviso de datos incorrectos
+                    swal({text:"Contraseña o correo incorrecto",buttons:false,timer:3000})
+                }
+                else//En caso de que sean correctos redirigimos con la pagina principal
+                {
+                    location.replace('http://localhost:11235/principal')
+                }
+                })
+                .catch(function(error) {
+                console.log(error);
+                });   
+            }
+
+            //Funcion para agregar nueva entrada en BD desde el inicio de la pagina
+            async function crear()
+            {  
+                formSU();
+                //Verificacion de la valides de los datos a ingresar
+                if(nombre.length < 2)
+                {   
+                    swal({
+                        text:`El campo "nombre" debe contener al menos 2 caracteres`,
+                        icon:"info"
+                    })
+                }
+                else if(apellido.length < 2)
+                {
+                    swal({
+                        text:`El campo "apellido" debe contener al menos 2 caracteres`,
+                        icon:"info"
+                    })
+                }
+                else if(password < 8)
+                {
+                    swal({
+                        text:`El campo "contraseña" debe contener al menos 8 caracteres`,
+                        icon:"info"
+                    })
+                }
+                else if(numero.length < 10)
+                {
+                    swal({
+                        text:`El campo "numero" debe contener al menos 10 caracteres`,
+                        icon:"info"
+                    })
+                }
+                else if(!(/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email)))
+                {
+                    swal({
+                        text:`Introduzca un correo valido`,
+                        icon:"info"
+                    })
+                }
+                else
+                {
+                    await fetch('http://localhost:11235/insertar',{
+                    method:'POST', 
+                    headers: {'Content-Type': 'application/json; charset=utf-8'},
+                    body: JSON.stringify({name : nombre, lastname: apellido, email , password, number : numero})
+                    })
+                    .then(async res => {
+                        let contestacion= await res.json()
+                        console.log(contestacion.alert)
+                        if(contestacion.alert=="Success...")//Verificacion de la insercion exitosa a la BD
+                        {
+                            swal({
+                            text: contestacion.alert,
+                            icon:"info",
+                            })
+                            limpiarSU()
+                        }
+                        else
+                        {
+                            swal({
+                            text: contestacion.alert,
+                            icon:"info",
+                            })
+                        }
+                    })
+                    .then(function (dres) {
+                        let state = dres.alert;
+                        swal({
+                            text: state,
+                            icon:"info",
+                        })
+                        console.log(state)
+                    })                    
+                }                
+            }
+        </script>
+    </body>
+</html>
